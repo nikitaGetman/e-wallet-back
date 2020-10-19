@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const checkAuth = require("../middleware/checkAuth");
 const User = require("../controllers/user");
+const checkAuth = require("../middleware/checkAuth");
 
-router.post("/signin", (req, res) => {
-  console.log(req.body);
-  const token = User.signin(req.body);
+router.post("/signin", async (req, res) => {
+  const token = await User.signin(req.body);
 
   if (token) {
     res.send(token);
@@ -14,24 +13,32 @@ router.post("/signin", (req, res) => {
   }
 });
 
-router.post("/signup", (req, res) => {
-  console.log(req.body);
-  const result = User.signup(req.body);
-  const token = User.signin({
-    password: req.body.password,
-    login: req.body.email,
-  });
+router.post("/signup", async (req, res) => {
+  const result = await User.signup(req.body);
 
-  console.log(result, token);
+  if (!result) {
+    res.status(400).send({ status: "error", message: "Cannot create user" });
+  }
+
+  const token = await User.signin(req.body);
+
   if (result && token) {
-    res.send({ ...result, ...token });
+    res.send({ ...token });
   } else {
     res.status(400).send({ status: "error", message: "Something went wrong" });
   }
 });
 
-router.get("/secret", checkAuth, (req, res) => {
-  res.send(" this is protected route");
+router.get("/me", checkAuth, async (req, res) => {
+  const user = await User.getProfileById(req.userId);
+  if (user) {
+    res.send({ ...user });
+  } else {
+    res.status(401).send({
+      status: "error",
+      message: "Cannot get current user. Unauthorize",
+    });
+  }
 });
 
 module.exports = router;
