@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const { getUserContacts } = require("../controllers/user");
 
 const driver = {
   connection: null,
@@ -22,36 +23,10 @@ const driver = {
     if (!this.connection) await this.init();
     return this.connection;
   },
-
-  async createUser(params) {
-    const sql =
-      "INSERT INTO `mydb`.`users` (`login`,`password`,`salt`,`name`,`surname`,`user_type`) VALUES(?,?,?,?,?,1);";
-
+  async exec(sql, params){
     const conn = await this.getConnection();
-    return await conn.execute(sql, [
-      params.login,
-      params.password,
-      params.salt,
-      params.name,
-      params.surname,
-    ]);
+    return await conn.execute(sql, params);
   },
-  async authUser({ login, password }) {
-    const sql =
-      "SELECT `users`.`id`,  `users`.`name`,`users`.`surname`,`users`.`created_at`,`users`.`user_type` FROM `mydb`.`users` WHERE `users`.`login` = ? and `users`.`password` = ?; ";
-
-    const conn = await this.getConnection();
-    return await conn.execute(sql, [login, password]);
-  },
-  async getProfileById(id) {
-    const sql =
-      "SELECT  `users`.`name`,`users`.`surname`,`users`.`login` FROM `mydb`.`users` WHERE `users`.`id` = ?; ";
-
-    const conn = await this.getConnection();
-    return await conn.execute(sql, [id]);
-  },
-
-  // закрытие подключения
   disconnect() {
     this.connection.end(function (err) {
       if (err) {
@@ -60,6 +35,89 @@ const driver = {
       console.log("Подключение закрыто");
     });
   },
+
+  // user
+  async createUser(params) {
+    const sql =
+      "INSERT INTO `mydb`.`users` (`login`,`password`,`salt`,`name`,`surname`,`user_type`) VALUES(?,?,?,?,?,1);";
+
+    return await this.exec(sql, [
+      params.login,
+      params.password,
+      params.salt,
+      params.name,
+      params.surname,
+    ])
+  }, 
+  async authUser({ login, password }) {
+    const sql =
+      "SELECT `users`.`id`,  `users`.`name`,`users`.`surname`,`users`.`created_at`,`users`.`user_type` FROM `mydb`.`users` WHERE `users`.`login` = ? and `users`.`password` = ?; ";
+    return await this.exec(sql, [login, password])
+  },
+  async getProfileById(id) {
+    const sql =
+      "SELECT  `users`.`name`,`users`.`surname`,`users`.`login` FROM `mydb`.`users` WHERE `users`.`id` = ?; ";
+    return await this.exec(sql, [id])
+  },
+
+  // accounts
+  async getCardsByUserId(id){
+    const sql = ""
+    return this.exec(sql, [id])
+  },
+  async addCardToUser( {number,cvc,expireMonth,expireYear,holderName, userId}){
+    const sql = ""
+    return this.exec(sql, [number, cvc, expireMonth,expireYear,holderName, userId])
+  },
+  async getBanksByUserId(id){
+    const sql = ""
+    return this.exec(sql, [id])
+  },
+  async addBankToUser({account,bankName,userId}){
+    const sql = ""
+    return this.exec(sql, [account,bankName,userId])
+  },
+
+  async getUserAccount(id){
+    const sql = ""
+    return this.exec(sql, [id])
+  },
+  async getUserActivity(id){
+    const sql = ""
+    return this.exec(sql, [id])
+  },
+
+  async createDepositFromCard({userId, cardId, amount}){
+    const sql = ""
+    return this.exec(sql, [userId, cardId, amount])
+  },
+  async createDepositFromBank({userId, bankId, amount}){
+    const sql = ""
+    return this.exec(sql, [userId, bankId, amount])
+  },
+
+  // contacts
+  async getUserContacts(id){
+    const sql = ""
+    return await this.exec(sql, [id])
+  },
+  async getAllUsers(){
+    const sql = ""
+    return this.exec(sql)
+  },  
+  async addUserToContacts({userId, contactId}){
+    const sql = ""
+    return this.exec(sql, [userId, contactId])
+  },
+  async depositToContact({fromUserId, toUserId, amount}){
+    const sql = ""
+    return this.exec(sql, [fromUserId, toUserId, amount])
+  }
+
+  // TODO: create account on user creation
+  // TODO: compute account balance on sum of transactions
+
+ 
 };
 
 module.exports = driver;

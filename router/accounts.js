@@ -1,33 +1,119 @@
 const express = require("express");
 const router = express.Router();
-const CardAccounts = require("../controllers/cardAccounts");
-const BankAccounts = require("../controllers/bankAccounts");
+const AccountsController = require("../controllers/accountsController");
 const checkAuth = require("../middleware/checkAuth");
 
+router.get('/account', checkAuth, async(req, res) => {
+  const account = await AccountsController.getUserAccount(req.userId);
+
+  if (account) {
+    res.send({ account });
+  } else {
+    res.status(500).send({
+      status: "error",
+      message: "Cannot get user account",
+    });
+  }
+});
+
+router.get('/activity', checkAuth, async(req, res) => {
+  const activity = await AccountsController.getUserActivity(req.userId);
+
+  if (activity) {
+    res.send({ activity });
+  } else {
+    res.status(500).send({
+      status: "error",
+      message: "Cannot get user activity",
+    });
+  }
+});
+
+router.post('/account/deposit', checkAuth, async(req, res)=>{
+  const params = {
+    userId: req.userId,
+    account: req.account,
+    bankId: req.bankId,
+    cardId: req.cardId,
+  }
+
+  const res = await AccountsController.createDeposit(params)
+
+  if(res){
+    res.send({status: 'OK'})
+  }else{
+    res.status(500).send({
+      status: "error",
+      message: "Cannot create deposit",
+    });
+  }
+})
+
 router.get("/cards", checkAuth, async (req, res) => {
-  const cards = await CardAccounts.getCardsByUserId(req.userId);
+  const cards = await AccountsController.getCardsByUserId(req.userId);
 
   if (cards) {
-    res.send({ ...cards });
+    res.send({ cards });
   } else {
-    res.status(401).send({
+    res.status(500).send({
       status: "error",
-      message: "Cannot get user cards. Unauthorize",
+      message: "Cannot get user cards",
     });
   }
 });
+
+router.post('/cards/add', checkAuth, async(req, res)=>{
+  const params = {
+    userId: req.userId,
+    number: req.number,
+    cvc: req.cvc,
+    expireMonth: req.expireMonth,
+    expireYear: req.expireYear,
+    holderName: req.holderName,
+  }
+
+  const res = await AccountsController.addCardToUser(params)
+
+  if(res){
+    res.send({status: 'OK'})
+  }else{
+    res.status(500).send({
+      status: "error",
+      message: "Cannot add card to user",
+    });
+  }
+})
 
 router.get("/banks", checkAuth, async (req, res) => {
-  const banks = await BankAccounts.getBanksById(req.userId);
+  const banks = await AccountsController.getBanksByUserId(req.userId);
 
   if (banks) {
-    res.send({ ...banks });
+    res.send({ banks });
   } else {
-    res.status(401).send({
+    res.status(500).send({
       status: "error",
-      message: "Cannot get user banks. Unauthorize",
+      message: "Cannot get user banks",
     });
   }
 });
+
+router.post('/banks/add', checkAuth, async(req, res)=>{
+  const params = {
+    userId: req.userId,
+    account: req.account,
+    bankName: req.bankName
+  }
+
+  const res = await AccountsController.addBankToUser(params)
+
+  if(res){
+    res.send({status: 'OK'})
+  }else{
+    res.status(500).send({
+      status: "error",
+      message: "Cannot add bank to user",
+    });
+  }
+})
 
 module.exports = router;
