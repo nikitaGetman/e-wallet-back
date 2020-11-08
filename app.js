@@ -15,7 +15,7 @@ app.use(
 
 app.use("/api", auth);
 app.use("/api", accounts);
-app.use('/api', contacts);
+app.use("/api", contacts);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

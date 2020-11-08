@@ -3,7 +3,7 @@ const router = express.Router();
 const AccountsController = require("../controllers/accountsController");
 const checkAuth = require("../middleware/checkAuth");
 
-router.get('/account', checkAuth, async(req, res) => {
+router.get("/account", checkAuth, async (req, res) => {
   const account = await AccountsController.getUserAccount(req.userId);
 
   if (account) {
@@ -16,7 +16,7 @@ router.get('/account', checkAuth, async(req, res) => {
   }
 });
 
-router.get('/activity', checkAuth, async(req, res) => {
+router.get("/activity", checkAuth, async (req, res) => {
   const activity = await AccountsController.getUserActivity(req.userId);
 
   if (activity) {
@@ -29,25 +29,25 @@ router.get('/activity', checkAuth, async(req, res) => {
   }
 });
 
-router.post('/account/deposit', checkAuth, async(req, res)=>{
+router.post("/account/deposit", checkAuth, async (req, res) => {
   const params = {
     userId: req.userId,
     account: req.account,
     bankId: req.bankId,
     cardId: req.cardId,
-  }
+  };
 
-  const res = await AccountsController.createDeposit(params)
+  const result = await AccountsController.createDeposit(params);
 
-  if(res){
-    res.send({status: 'OK'})
-  }else{
+  if (result) {
+    res.send({ status: "OK" });
+  } else {
     res.status(500).send({
       status: "error",
       message: "Cannot create deposit",
     });
   }
-})
+});
 
 router.get("/cards", checkAuth, async (req, res) => {
   const cards = await AccountsController.getCardsByUserId(req.userId);
@@ -62,7 +62,7 @@ router.get("/cards", checkAuth, async (req, res) => {
   }
 });
 
-router.post('/cards/add', checkAuth, async(req, res)=>{
+router.post("/cards/add", checkAuth, async (req, res) => {
   const params = {
     userId: req.userId,
     number: req.number,
@@ -70,19 +70,19 @@ router.post('/cards/add', checkAuth, async(req, res)=>{
     expireMonth: req.expireMonth,
     expireYear: req.expireYear,
     holderName: req.holderName,
-  }
+  };
 
-  const res = await AccountsController.addCardToUser(params)
+  const result = await AccountsController.addCardToUser(params);
 
-  if(res){
-    res.send({status: 'OK'})
-  }else{
+  if (result) {
+    res.send({ status: "OK" });
+  } else {
     res.status(500).send({
       status: "error",
       message: "Cannot add card to user",
     });
   }
-})
+});
 
 router.get("/banks", checkAuth, async (req, res) => {
   const banks = await AccountsController.getBanksByUserId(req.userId);
@@ -97,23 +97,23 @@ router.get("/banks", checkAuth, async (req, res) => {
   }
 });
 
-router.post('/banks/add', checkAuth, async(req, res)=>{
+router.post("/banks/add", checkAuth, async (req, res) => {
   const params = {
     userId: req.userId,
     account: req.account,
-    bankName: req.bankName
-  }
+    bankName: req.bankName,
+  };
 
-  const res = await AccountsController.addBankToUser(params)
+  const result = await AccountsController.addBankToUser(params);
 
-  if(res){
-    res.send({status: 'OK'})
-  }else{
+  if (result) {
+    res.send({ status: "OK" });
+  } else {
     res.status(500).send({
       status: "error",
       message: "Cannot add bank to user",
     });
   }
-})
+});
 
 module.exports = router;

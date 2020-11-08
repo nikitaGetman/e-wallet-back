@@ -4,7 +4,7 @@ const AccountsController = {
   getCardsByUserId: async (id) => {
     if (id === undefined) return;
     const [rows, fields] = await dbDriver.getCardsByUserId(id);
-    return rows
+    return rows;
   },
 
   addCardToUser: async ({
@@ -31,37 +31,45 @@ const AccountsController = {
   getBanksByUserId: async (id) => {
     if (id === undefined) return;
     const [rows, fields] = await dbDriver.getBanksByUserId(id);
-    return rows
+    return rows;
   },
 
-  addBankToUser: async ({account,bankName,userId}) => {
-    const params = {account,bankName,userId};
+  addBankToUser: async ({ account, bankName, userId }) => {
+    const params = { account, bankName, userId };
     const [rows, fields] = await dbDriver.addBankToUser(params);
     return rows.affectedRows > 0;
   },
 
-  getUserAccount: async(id) => {
+  getUserAccount: async (id) => {
     if (id === undefined) return;
     const [rows, fields] = await dbDriver.getUserAccount(id);
-    return rows
+    return rows;
   },
 
-  createDeposit: async({userId, amount, cardId = null, bankId = null }) => {
-    if(cardId){
-      const [rows, fields] = await dbDriver.createDepositFromCard({userId, cardId, amount});
-      return rows
+  createDeposit: async ({ userId, amount, cardId = null, bankId = null }) => {
+    if (cardId) {
+      const [rows, fields] = await dbDriver.createDepositFromCard({
+        userId,
+        cardId,
+        amount,
+      });
+      return rows;
     }
-    if(bankId){
-      const [rows, fields] = await dbDriver.createDepositFromBank({userId, bankId, amount});
-      return rows
+    if (bankId) {
+      const [rows, fields] = await dbDriver.createDepositFromBank({
+        userId,
+        bankId,
+        amount,
+      });
+      return rows;
     }
   },
 
-  getUserActivity: async(id) => {
+  getUserActivity: async (id) => {
     if (id === undefined) return;
     const [rows, fields] = await dbDriver.getUserActivity(id);
-    return rows
-  }
+    return rows;
+  },
 };
 
 module.exports = AccountsController;
