@@ -98,29 +98,36 @@ const driver = {
     return this.exec(sql, [userId, bankName, account]);
   },
 
-  async getUserAccount(id) {
+  async getAccountByUserId(userId) {
     const sqlForAccountId =
       "SELECT * FROM `mydb`.`accounts` WHERE `accounts`.`user_id` = ?;";
-    const res = await this.exec(sqlForAccountId, [id]);
-    const accountId = res[0][0]; // TODO TEST it
+    const res = await this.exec(sqlForAccountId, [userId]);
+    return res[0][0]; // TODO TEST it
+  },
+
+  async getUserAccount(id) {
+    const accountId = await this.getAccountByUserId(id);
     const sql = "call `get_account_balance`(?);";
     return this.exec(sql, [accountId]);
   },
   async getUserActivity(id) {
+    const accountId = await this.getAccountByUserId(id);
     const sql =
       "SELECT * FROM `mydb`.`transactions` WHERE `transactions`.`from` = ? or `transactions`.`to` = ?;";
-    return this.exec(sql, [id, id]);
+    return this.exec(sql, [accountId, accountId]);
   },
 
   async createDepositFromCard({ userId, cardId, amount }) {
+    const accountId = await this.getAccountByUserId(userId);
     const sql =
       "INSERT INTO `mydb`.`transactions`(`to`,`amount`) VALUES (?, ?);";
-    return this.exec(sql, [userId, amount]);
+    return this.exec(sql, [accountId, amount]);
   },
   async createDepositFromBank({ userId, bankId, amount }) {
+    const accountId = await this.getAccountByUserId(userId);
     const sql =
       "INSERT INTO `mydb`.`transactions`(`to`,`amount`) VALUES (?, ?);";
-    return this.exec(sql, [userId, amount]);
+    return this.exec(sql, [accountId, amount]);
   },
 
   // contacts
@@ -139,9 +146,11 @@ const driver = {
     return this.exec(sql, [userId, contactId]);
   },
   async depositToContact({ fromUserId, toUserId, amount }) {
+    const fromAccountId = await this.getAccountByUserId(fromUserId);
+    const toAccountId = await this.getAccountByUserId(toUserId);
     const sql =
       "INSERT INTO `mydb`.`transactions`(`from`,`to`,`amount`) VALUES (?, ?, ?);";
-    return this.exec(sql, [fromUserId, toUserId, amount]);
+    return this.exec(sql, [fromAccountId, toAccountId, amount]);
   },
 };
 
