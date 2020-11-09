@@ -6,8 +6,8 @@ const ContactsController = {
     const [rows, fields] = await dbDriver.getUserContacts(id);
     return rows;
   },
-  getUsers: async () => {
-    const [rows, fields] = await dbDriver.getAllUsers();
+  getUsers: async (id) => {
+    const [rows, fields] = await dbDriver.getAllUsers(id);
     return rows;
   },
   addUserToContacts: async ({ userId, contactId }) => {

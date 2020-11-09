@@ -65,7 +65,7 @@ const driver = {
 
   // accounts
   async getCardsByUserId(id) {
-    const sql = "";
+    const sql = "SELECT * FROM `mydb`.`cards` WHERE `cards`.`user_id` = ?;";
     return this.exec(sql, [id]);
   },
   async addCardToUser({
@@ -76,58 +76,71 @@ const driver = {
     holderName,
     userId,
   }) {
-    const sql = "";
+    const sql =
+      "INSERT INTO `mydb`.`cards` (`user_id`,`card_number`,`expire_year`,`expire_month`,`holder_name`,`cvv`) VALUES (?,?,?,?,?,?);";
     return this.exec(sql, [
-      number,
-      cvc,
-      expireMonth,
-      expireYear,
-      holderName,
       userId,
+      number,
+      expireYear,
+      expireMonth,
+      holderName,
+      cvc,
     ]);
   },
   async getBanksByUserId(id) {
-    const sql = "";
+    const sql =
+      "SELECT * FROM `mydb`.`bank_accounts` WHERE `bank_accounts`.`user_id` = ?;";
     return this.exec(sql, [id]);
   },
   async addBankToUser({ account, bankName, userId }) {
-    const sql = "";
-    return this.exec(sql, [account, bankName, userId]);
+    const sql =
+      "INSERT INTO `mydb`.`bank_accounts` (`user_id`,`bank_name`,`account`) VALUES (?,?,?);";
+    return this.exec(sql, [userId, bankName, account]);
   },
 
   async getUserAccount(id) {
-    const sql = "";
-    return this.exec(sql, [id]);
+    const sqlForAccountId =
+      "SELECT * FROM `mydb`.`accounts` WHERE `accounts`.`user_id` = ?;";
+    const res = await this.exec(sqlForAccountId, [id]);
+    const accountId = res[0][0]; // TODO TEST it
+    const sql = "call `get_account_balance`(?);";
+    return this.exec(sql, [accountId]);
   },
   async getUserActivity(id) {
-    const sql = "";
-    return this.exec(sql, [id]);
+    const sql =
+      "SELECT * FROM `mydb`.`transactions` WHERE `transactions`.`from` = ? or `transactions`.`to` = ?;";
+    return this.exec(sql, [id, id]);
   },
 
   async createDepositFromCard({ userId, cardId, amount }) {
-    const sql = "";
-    return this.exec(sql, [userId, cardId, amount]);
+    const sql =
+      "INSERT INTO `mydb`.`transactions`(`to`,`amount`) VALUES (?, ?);";
+    return this.exec(sql, [userId, amount]);
   },
   async createDepositFromBank({ userId, bankId, amount }) {
-    const sql = "";
-    return this.exec(sql, [userId, bankId, amount]);
+    const sql =
+      "INSERT INTO `mydb`.`transactions`(`to`,`amount`) VALUES (?, ?);";
+    return this.exec(sql, [userId, amount]);
   },
 
   // contacts
   async getUserContacts(id) {
-    const sql = "";
+    const sql =
+      "SELECT * FROM `mydb`.`contacts` WHERE `contacts`.`owner_id` = ?";
     return await this.exec(sql, [id]);
   },
-  async getAllUsers() {
-    const sql = "";
-    return this.exec(sql);
+  async getAllUsers(id) {
+    const sql = "SELECT * FROM `mydb`.`users` WHERE `users`.`id` != ?";
+    return this.exec(sql, [id]);
   },
   async addUserToContacts({ userId, contactId }) {
-    const sql = "";
+    const sql =
+      "INSERT INTO `mydb`.`contacts` (`owner_id`, `contact_id`) VALUES (?,?);";
     return this.exec(sql, [userId, contactId]);
   },
   async depositToContact({ fromUserId, toUserId, amount }) {
-    const sql = "";
+    const sql =
+      "INSERT INTO `mydb`.`transactions`(`from`,`to`,`amount`) VALUES (?, ?, ?);";
     return this.exec(sql, [fromUserId, toUserId, amount]);
   },
 };

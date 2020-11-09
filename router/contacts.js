@@ -34,7 +34,7 @@ router.post("/contacts", checkAuth, async (req, res) => {
 });
 
 router.get("/users", checkAuth, async (req, res) => {
-  const users = await ContactsController.getUsers();
+  const users = await ContactsController.getUsers(req.userId);
 
   if (users) {
     res.send({ users });
@@ -47,15 +47,19 @@ router.get("/users", checkAuth, async (req, res) => {
 });
 
 router.post("/contacts/deposit", checkAuth, async (req, res) => {
-  const params = {};
-  const users = await ContactsController.getUsers();
+  const params = {
+    fromUserId: req.userId,
+    toUserId: req.to_id,
+    amount: req.amount,
+  };
+  const result = await ContactsController.depositToContact(params);
 
-  if (users) {
-    res.send({ users });
+  if (result) {
+    res.send({ result });
   } else {
     res.status(500).send({
       status: "error",
-      message: "Cannot get user contacts",
+      message: "Cannot deposit to user contact",
     });
   }
 });
